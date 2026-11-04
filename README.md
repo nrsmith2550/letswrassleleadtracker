@@ -7,7 +7,21 @@ Wholesale lead outreach for **Let's Wrassle Apparel Co.**, run entirely from one
 - In the **Decision** column, pick **Approve** and the email sends from `support@letswrassleapparel.com`. Pick **Deny** and the lead is moved out of your queue.
 - Leads with no reply after 5 days get one follow-up, which comes back to the queue for you to approve.
 
-You only ever touch the sheet. You can use it on your phone in the Google Sheets app.
+You review leads in a **phone web app** (`apps-script/Index.html`), which you can add to your iPhone home screen. You can also use the sheet directly. Both stay in sync because the app reads and writes the same tabs.
+
+## Phone app
+
+The web app is served by the same Apps Script project, so it runs as you, sends from your Gmail, and only you can open it.
+
+- **Deploy:** in the Apps Script editor, go to **Deploy → New deployment → Web app**. Set *Execute as* to **Me** and *Who has access* to **Only myself**, then click **Deploy** and copy the `/exec` URL.
+- **Home screen:** open that URL in **Safari** on your iPhone, tap **Share**, then **Add to Home Screen**.
+- **Using it:**
+  - **Approve & send** takes two taps, and the email goes out right away.
+  - **Deny** removes the lead, with an Undo.
+  - **Edit:** you can change the email, subject or message before you send.
+  - **Instagram:** leads with a handle have a **Copy DM** button.
+  - **Sent and Denied tabs** show history. You can move a denied lead back to review.
+- **Updating:** after you change the code, use **Deploy → Manage deployments → Edit → Version: New version**. The URL stays the same.
 
 ```
 Claude (weekly) ──CSV──▶ Drive folder "Let's Wrassle – Incoming Leads"
@@ -32,7 +46,7 @@ Claude (weekly) ──CSV──▶ Drive folder "Let's Wrassle – Incoming Lead
 > **Which Google account?** Use the Gmail account that has `support@letswrassleapparel.com` set up as a "Send mail as" address (`athletemindsetnetwork@gmail.com`). The script sends as whoever installs it. The incoming-leads folder is already shared with that account.
 
 1. **Create the sheet.** Signed in as that account, go to [sheets.new](https://sheets.new) and name it **Let's Wrassle Leads**.
-2. **Add the script.** Go to **Extensions → Apps Script**. Delete what's in `Code.gs` and paste in [`apps-script/Code.gs`](apps-script/Code.gs).
+2. **Add the script.** Go to **Extensions → Apps Script**. Delete what's in `Code.gs` and paste in [`apps-script/Code.gs`](apps-script/Code.gs). Add a script file named `WebApp` with [`WebApp.gs`](apps-script/WebApp.gs), and an HTML file named `Index` with [`Index.html`](apps-script/Index.html).
    Then click the gear (**Project Settings**), check **Show "appsscript.json" manifest file in editor**, and replace that file with [`apps-script/appsscript.json`](apps-script/appsscript.json). Save.
 3. **Run setup.** Reload the sheet. A **Let's Wrassle** menu appears. Click **Let's Wrassle → Run setup (first time)** and approve the Google permissions it asks for. You'll see an "unverified app" screen because it's your own script: click **Advanced → Go to project**.
    Setup creates the tabs, adds the Approve/Deny dropdown, installs the hourly import and daily follow-up checks, and imports your first 10 leads.
@@ -66,6 +80,8 @@ clasp push
 | Path | Purpose |
 |---|---|
 | `apps-script/Code.gs` | The whole automation: setup, Approve/Deny, CSV import, follow-ups |
+| `apps-script/WebApp.gs` | The phone app's server side (list, approve, deny, restore) |
+| `apps-script/Index.html` | The phone app's interface |
 | `apps-script/appsscript.json` | Apps Script manifest (time zone, scopes) |
 | `starter-leads.csv` | The first 10 researched leads (already in the Drive incoming folder) |
 | `claude/weekly-task-prompt.md` | The prompt the Claude scheduled task runs each Monday |

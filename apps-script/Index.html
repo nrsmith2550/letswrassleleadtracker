@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0f1b2d;--card:#17263d;--card2:#1d3050;--ink:#f3f5f8;--muted:#9fb0c8;--line:#2a3f60;--gold:#f2b632;--green:#2fb36d;--red:#e0524a;--blue:#4f8ff7}
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,sans-serif;-webkit-text-size-adjust:100%}
+  header{position:sticky;top:0;z-index:5;background:var(--bg);padding:14px 16px 10px;border-bottom:1px solid var(--line)}
+  .brand{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  h1{font-family:Oswald,Impact,sans-serif;font-weight:600;letter-spacing:.5px;font-size:23px;margin:0;text-transform:uppercase}
+  h1 span{color:var(--gold)}
+  .refresh{background:none;border:1px solid var(--line);color:var(--muted);border-radius:10px;padding:6px 10px;font:500 13px Inter,sans-serif}
+  .tabs{display:flex;gap:6px;margin-top:12px}
+  .tab{flex:1;padding:9px 0;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--muted);font:600 14px Inter,sans-serif}
+  .tab[aria-pressed="true"]{background:var(--card2);color:var(--ink);border-color:var(--blue)}
+  main{padding:14px 14px 90px;max-width:640px;margin:0 auto}
+  .banner{padding:12px 14px;border-radius:12px;background:#3a2a10;color:#ffd98a;font-size:14px;margin-bottom:12px;line-height:1.4}
+  .banner.err{background:#3d1717;color:#ffb3ad}
+  .empty{text-align:center;color:var(--muted);padding:48px 16px;font-size:15px;line-height:1.5}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px}
+  .top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+  .name{font-weight:600;font-size:17px;line-height:1.25}
+  .meta{color:var(--muted);font-size:13px;margin-top:3px;line-height:1.35}
+  .pill{flex:none;font-size:11px;font-weight:600;padding:4px 8px;border-radius:999px;background:var(--card2);color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+  .pill.sent{background:#123a26;color:#7ee2a8}.pill.deny{background:#3d1717;color:#ffb3ad}.pill.fu{background:#3a2a10;color:#ffd98a}
+  .note{font-size:13px;color:#cfd8e6;margin-top:10px;line-height:1.4;background:#13213a;border-radius:10px;padding:8px 10px}
+  label{display:block;font-size:12px;color:var(--muted);margin:12px 0 5px;font-weight:500}
+  input,textarea{width:100%;background:#0d1828;color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:11px 12px;font:16px Inter,sans-serif}
+  input:focus,textarea:focus{outline:none;border-color:var(--blue)}
+  input.bad{border-color:var(--red)}
+  textarea{min-height:230px;line-height:1.45;resize:vertical}
+  details{margin-top:10px} summary{cursor:pointer;color:var(--blue);font-size:14px;font-weight:500;padding:4px 0}
+  .row{display:flex;gap:8px;margin-top:14px}
+  button.act{flex:1;border:0;border-radius:12px;padding:14px 0;font:600 16px Inter,sans-serif;color:#fff}
+  .approve{background:var(--green)} .approve.confirm{background:var(--gold);color:#1b1200}
+  .denyb{background:transparent;border:1px solid var(--red)!important;color:var(--red)!important}
+  button:disabled{opacity:.45}
+  .small{background:transparent;border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:8px 12px;font:500 13px Inter,sans-serif;margin-top:10px}
+  .ig{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px;font-size:13px;color:var(--muted)}
+  .hint{font-size:12px;color:var(--muted);margin-top:6px}
+  .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#e9eef6;color:#0f1b2d;padding:12px 16px;border-radius:12px;font-size:14px;font-weight:500;box-shadow:0 6px 24px rgba(0,0,0,.35);display:none;max-width:92vw;z-index:10}
+  .toast button{margin-left:10px;background:none;border:0;color:var(--blue);font:600 14px Inter,sans-serif}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><h1>Let's <span>Wrassle</span> Leads</h1><button class="refresh" id="refresh">↻ Refresh</button></div>
+  <div class="tabs">
+    <button class="tab" data-view="review" aria-pressed="true">Review <span id="n-review"></span></button>
+    <button class="tab" data-view="sent" aria-pressed="false">Sent</button>
+    <button class="tab" data-view="denied" aria-pressed="false">Denied</button>
+  </div>
+</header>
+<main>
+  <div id="status"></div>
+  <div id="list"><div class="empty">Loading leads…</div></div>
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  let data = {review:[], sent:[], denied:[]}, view = 'review', loaded = false;
+  const busy = new Set(), armed = new Set(), edits = {};
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const validEmail = e => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((e||'').trim());
+  const key = l => l.lead;
+  const val = (l,k) => (edits[key(l)] && edits[key(l)][k] !== undefined) ? edits[key(l)][k] : (l[k] || '');
+
+  function call(fn, ...args){
+    return new Promise((res, rej) => google.script.run.withSuccessHandler(res).withFailureHandler(rej)[fn](...args));
+  }
+  function banner(msg, err){ $('status').innerHTML = msg ? `<div class="banner${err?' err':''}">${msg}</div>` : ''; }
+  let tt;
+  function toast(msg, undo){
+    const t = $('toast'); t.innerHTML = esc(msg) + (undo ? ' <button id="undo">Undo</button>' : '');
+    t.style.display = 'block'; if (undo) $('undo').onclick = () => { t.style.display='none'; undo(); };
+    clearTimeout(tt); tt = setTimeout(() => t.style.display='none', undo ? 6000 : 3500);
+  }
+
+  async function load(){
+    try {
+      data = await call('apiList'); loaded = true;
+      banner(data.signatureReady ? '' : 'Add your mailing address to the signature (Settings tab in the sheet) before sending. CAN-SPAM requires a physical address.');
+    } catch (e) { loaded = true; banner('Couldn\'t load leads: ' + esc(e.message || e), true); }
+    render();
+  }
+
+  function render(){
+    $('n-review').textContent = loaded ? '(' + data.review.length + ')' : '';
+    document.querySelectorAll('.tab').forEach(b => b.setAttribute('aria-pressed', b.dataset.view === view));
+    if (!loaded) return;
+    const items = data[view] || [];
+    if (!items.length){
+      $('list').innerHTML = `<div class="empty">${view==='review' ? 'All caught up 🤼<br>New leads arrive after the Monday research run.' : 'Nothing here yet.'}</div>`;
+      return;
+    }
+    $('list').innerHTML = items.map(view==='review' ? reviewCard : doneCard).join('');
+    if (view==='review') items.forEach(wire);
+  }
+
+  function doneCard(l){
+    const sent = view==='sent';
+    return `<div class="card"><div class="top"><div><div class="name">${esc(l.lead)}</div>
+      <div class="meta">${esc(l.location)}${sent && l.sentTo ? '<br>Sent to '+esc(l.sentTo) : ''}${l.when ? ' · '+esc(new Date(l.when).toLocaleDateString()) : ''}</div></div>
+      <span class="pill ${sent?'sent':'deny'}">${esc(sent ? (l.status||'Sent') : 'Denied')}</span></div>
+      ${!sent ? `<button class="small" data-restore="${esc(l.lead)}">Move back to review</button>` : ''}</div>`;
+  }
+
+  function reviewCard(l){
+    const k = key(l), email = val(l,'email'), ok = validEmail(email), b = busy.has(k);
+    const id = encodeURIComponent(k);
+    return `<div class="card">
+      <div class="top"><div><div class="name">${esc(l.lead)}</div>
+        <div class="meta">${esc([l.type,l.location].filter(Boolean).join(' · '))}${l.contact ? '<br>'+esc(l.contact) : ''}${l.phone ? ' · '+esc(l.phone) : ''}</div></div>
+        <span class="pill ${l.followUp?'fu':''}">${esc(l.followUp ? 'Follow-up' : (l.status || 'New'))}</span></div>
+      ${l.notes ? `<div class="note">${esc(l.notes)}</div>` : ''}
+      <label>Send to</label>
+      <input data-f="email" data-k="${esc(k)}" type="email" inputmode="email" autocomplete="off" autocapitalize="off" spellcheck="false"
+        placeholder="Add an email address" value="${esc(email)}" class="${email && !ok ? 'bad' : ''}">
+      ${!email ? '<div class="hint">No public email found yet. Add one to send.</div>' : ''}
+      <details><summary>Preview / edit email</summary>
+        <label>Subject</label>
+        <input data-f="subject" data-k="${esc(k)}" value="${esc(val(l,'subject') || ("Let's Wrassle apparel for " + l.lead))}">
+        <label>Message <span style="opacity:.7">(your signature is added automatically)</span></label>
+        <textarea data-f="body" data-k="${esc(k)}">${esc(val(l,'body'))}</textarea>
+      </details>
+      ${l.instagram ? `<div class="ig"><span>Instagram: ${esc(l.instagram)}</span>${l.dm ? `<button class="small" data-copy="${esc(k)}">Copy DM</button>` : ''}</div>` : ''}
+      <div class="row">
+        <button class="act denyb" data-deny="${esc(k)}" ${b?'disabled':''}>Deny</button>
+        <button class="act approve ${armed.has(k)?'confirm':''}" data-approve="${esc(k)}" ${(b||!ok||!val(l,'body'))?'disabled':''}>
+          ${b ? 'Working…' : armed.has(k) ? 'Tap to send' : 'Approve & send'}</button>
+      </div></div>`;
+  }
+
+  function wire(){
+    document.querySelectorAll('[data-f]').forEach(el => {
+      if (el._w) return; el._w = true;
+      el.addEventListener('input', () => {
+        const k = el.dataset.k, f = el.dataset.f;
+        edits[k] = Object.assign({}, edits[k], {[f]: el.value});
+        armed.delete(k);
+        const btn = [...document.querySelectorAll('[data-approve]')].find(b => b.dataset.approve === k);
+        if (f === 'email') el.classList.toggle('bad', !!el.value && !validEmail(el.value));
+        if (btn && !busy.has(k)) {
+          const l = data.review.find(x => key(x) === k);
+          btn.disabled = !(validEmail(val(l,'email')) && val(l,'body'));
+          btn.classList.remove('confirm'); btn.textContent = 'Approve & send';
+        }
+      });
+    });
+  }
+
+  document.addEventListener('click', async ev => {
+    const t = ev.target.closest('button'); if (!t) return;
+    if (t.dataset.view){ view = t.dataset.view; render(); window.scrollTo(0,0); return; }
+    if (t.id === 'refresh'){ t.textContent = '…'; await load(); t.textContent = '↻ Refresh'; return; }
+    if (t.dataset.copy){
+      const l = data.review.find(x => key(x) === t.dataset.copy);
+      try { await navigator.clipboard.writeText(l.dm); toast('DM copied. Paste it in Instagram.'); }
+      catch(e){ toast('Couldn\'t copy. Long-press the text in the sheet instead.'); }
+      return;
+    }
+    if (t.dataset.restore){
+      const r = await call('apiRestore', t.dataset.restore).catch(e => ({ok:false, message:e.message}));
+      toast(r.ok ? 'Moved back to review' : r.message); load(); return;
+    }
+    if (t.dataset.deny){
+      const k = t.dataset.deny; busy.add(k); render();
+      const r = await call('apiDeny', k).catch(e => ({ok:false, message:e.message}));
+      busy.delete(k);
+      if (r.ok){ data.review = data.review.filter(x => key(x) !== k); render();
+        toast(k + ' removed', async () => { await call('apiRestore', k); load(); });
+        load();
+      } else { banner(esc(r.message), true); render(); }
+      return;
+    }
+    if (t.dataset.approve){
+      const k = t.dataset.approve;
+      if (!armed.has(k)){ armed.add(k); render(); setTimeout(() => { if (armed.delete(k)) render(); }, 5000); return; }
+      armed.delete(k);
+      const l = data.review.find(x => key(x) === k);
+      busy.add(k); render(); banner('');
+      const r = await call('apiApprove', k, {email: val(l,'email').trim(), subject: val(l,'subject') || ("Let's Wrassle apparel for " + l.lead), body: val(l,'body')})
+        .catch(e => ({ok:false, message: e.message || String(e)}));
+      busy.delete(k);
+      if (r.ok){ toast('Sent to ' + val(l,'email').trim() + ' ✅'); delete edits[k]; }
+      else banner('Not sent: ' + esc(r.message), true);
+      load();
+    }
+  });
+
+  load();
+})();
+</script>
+</body>
+</html>
