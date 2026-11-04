@@ -29,7 +29,7 @@ const C = Object.fromEntries(COLS.map((name, i) => [name, i + 1])); // 1-based c
 const DEFAULT_SETTINGS = [
   ['From address', 'support@letswrassleapparel.com', 'Must be a "Send mail as" alias on the Gmail account that owns this script.'],
   ['From name', "Let's Wrassle Apparel Co.", 'Name recipients see.'],
-  ['Signature', "--\nNate Smith\nLet's Wrassle Apparel Co.\nletswrassleapparel.com | @lets_wrassle\n[ADD YOUR MAILING ADDRESS OR PO BOX HERE]",
+  ['Signature', "--\nNate Smith\nLet's Wrassle Apparel Co.\nletswrassleapparel.com | @lets_wrassle\n407 Nike Drive, Pittsburgh, PA",
     'Added to every email. Anti-spam law (CAN-SPAM) requires a physical mailing address; a PO box is fine.'],
   ['Follow-up after (days)', 5, 'Leads with no reply after this many days get one follow-up queued back into Leads.'],
   ['Max emails per day', 50, 'Safety cap. Consumer Gmail allows about 100 recipients a day from scripts.'],

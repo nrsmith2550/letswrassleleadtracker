@@ -12,8 +12,7 @@ function doGet() {
   return HtmlService.createHtmlOutputFromFile('Index')
     .setTitle("Let's Wrassle Leads")
     .addMetaTag('viewport', 'width=device-width, initial-scale=1, maximum-scale=1')
-    .addMetaTag('apple-mobile-web-app-capable', 'yes')
-    .addMetaTag('apple-mobile-web-app-title', 'Wrassle Leads');
+    .addMetaTag('apple-mobile-web-app-capable', 'yes');
 }
 
 /** Everything the app shows: the review queue plus recent sent/denied. */
