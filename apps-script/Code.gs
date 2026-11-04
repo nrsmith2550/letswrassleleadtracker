@@ -45,6 +45,7 @@ function onOpen() {
     .addItem('Import new leads now', 'importIncoming')
     .addItem('Check for follow-ups now', 'queueFollowUps')
     .addItem('Process Approve/Deny now', 'processAllDecisions')
+    .addItem('Tidy row heights', 'tidySheets')
     .addToUi();
 }
 
@@ -100,14 +101,32 @@ function setup() {
 
   importIncoming();
 
+  tidySheets();
   const aliasOk = checkAlias_();
-  SpreadsheetApp.getUi().alert(
+  notify_(
     "Let's Wrassle setup complete ✅\n\n" +
     'Incoming leads folder ID:\n' + folderId + '\n(share this with Claude for the weekly run)\n\n' +
     (aliasOk ? 'From address verified.' : '⚠️ "' + getSetting_('From address') + '" is not a Send-mail-as alias on ' +
       Session.getEffectiveUser().getEmail() + '. Add it in Gmail → Settings → Accounts, or emails will fail.') +
     '\n\nNext: put your mailing address in Settings → Signature.'
   );
+}
+
+/** Shows a popup when run from the sheet menu; just logs when run from the script editor. */
+function notify_(msg) {
+  try { SpreadsheetApp.getUi().alert(msg); } catch (e) { Logger.log(msg); }
+}
+
+/** Keeps every row one line tall (long emails are clipped, not wrapped) so the sheet is easy to scroll on a phone. */
+function tidySheets() {
+  const ss = SpreadsheetApp.getActive();
+  [TAB.LEADS, TAB.SENT, TAB.DENIED].forEach(name => {
+    const sh = ss.getSheetByName(name);
+    if (!sh || sh.getLastRow() < 2) return;
+    const n = sh.getLastRow() - 1;
+    sh.getRange(2, 1, n, COLS.length).setWrapStrategy(SpreadsheetApp.WrapStrategy.CLIP).setVerticalAlignment('middle');
+    sh.setRowHeightsForced(2, n, 24);
+  });
 }
 
 // ---------- Approve / Deny ----------
@@ -277,7 +296,7 @@ function importIncoming() {
     }
     markImported_(f);
   }
-  if (added) ss.toast(added + ' new lead(s) imported', "Let's Wrassle", 5);
+  if (added) { tidySheets(); ss.toast(added + ' new lead(s) imported', "Let's Wrassle", 5); }
 }
 
 // ---------- Helpers ----------
