@@ -15,6 +15,7 @@ The web app is served by the same Apps Script project, so it runs as you, sends 
 
 - **Deploy:** in the Apps Script editor, go to **Deploy → New deployment → Web app**. Set *Execute as* to **Me** and *Who has access* to **Only myself**, then click **Deploy** and copy the `/exec` URL.
 - **Home screen:** open that URL in **Safari** on your iPhone, tap **Share**, then **Add to Home Screen**.
+- **Phone numbers:** each lead has a Phone field, which the weekly research fills in when a number is published. Edit it any time; it saves when you leave the field. Tap **Call** to dial.
 - **Using it:**
   - **Approve & send** takes two taps, and the email goes out right away.
   - **Deny** removes the lead, with an Undo.

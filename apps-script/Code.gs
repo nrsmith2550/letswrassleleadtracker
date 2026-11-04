@@ -246,8 +246,9 @@ function queueFollowUps() {
       'Decision': '',
       'Subject': 'Re: ' + (thread.getFirstMessageSubject() || rec['Subject']),
       'Body': (first ? 'Hi ' + first + ',' : 'Hi there,') +
-        '\n\nJust bumping this up in case it got buried. I\'d love to drop off a sample Let\'s Wrassle shirt for ' +
-        rec['Lead'] + ' so you can see the quality. Would a quick call or a visit this week work?' +
+        '\n\nJust bumping this up in case it got buried. I\'d love to talk about getting Let\'s Wrassle into ' +
+        rec['Lead'] + '. Would a quick call this week work?' +
+        '\n\nWebsite: https://letswrassleapparel.com\nInstagram: https://www.instagram.com/lets_wrassle' +
         "\n\nIf the timing isn't right, no worries at all.\n\nThanks,\nNate",
       'Status': 'Follow-up due',
       'Date added': new Date()

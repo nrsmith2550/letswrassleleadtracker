@@ -40,6 +40,7 @@
   button:disabled{opacity:.45}
   .small{background:transparent;border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:8px 12px;font:500 13px Inter,sans-serif;margin-top:10px}
   .ig{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px;font-size:13px;color:var(--muted)}
+  .call{color:var(--blue);text-decoration:none;margin-left:8px;font-weight:600}
   .hint{font-size:12px;color:var(--muted);margin-top:6px}
   .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#e9eef6;color:#0f1b2d;padding:12px 16px;border-radius:12px;font-size:14px;font-weight:500;box-shadow:0 6px 24px rgba(0,0,0,.35);display:none;max-width:92vw;z-index:10}
   .toast button{margin-left:10px;background:none;border:0;color:var(--blue);font:600 14px Inter,sans-serif}
@@ -105,7 +106,7 @@
   function doneCard(l){
     const sent = view==='sent';
     return `<div class="card"><div class="top"><div><div class="name">${esc(l.lead)}</div>
-      <div class="meta">${esc(l.location)}${sent && l.sentTo ? '<br>Sent to '+esc(l.sentTo) : ''}${l.when ? ' · '+esc(new Date(l.when).toLocaleDateString()) : ''}</div></div>
+      <div class="meta">${esc(l.location)}${sent && l.sentTo ? '<br>Sent to '+esc(l.sentTo) : ''}${l.phone ? '<br><a class="call" href="tel:'+esc(l.phone.replace(/[^0-9+]/g,''))+'">'+esc(l.phone)+'</a>' : ''}${l.when ? ' · '+esc(new Date(l.when).toLocaleDateString()) : ''}</div></div>
       <span class="pill ${sent?'sent':'deny'}">${esc(sent ? (l.status||'Sent') : 'Denied')}</span></div>
       ${!sent ? `<button class="small" data-restore="${esc(l.lead)}">Move back to review</button>` : ''}</div>`;
   }
@@ -115,13 +116,15 @@
     const id = encodeURIComponent(k);
     return `<div class="card">
       <div class="top"><div><div class="name">${esc(l.lead)}</div>
-        <div class="meta">${esc([l.type,l.location].filter(Boolean).join(' · '))}${l.contact ? '<br>'+esc(l.contact) : ''}${l.phone ? ' · '+esc(l.phone) : ''}</div></div>
+        <div class="meta">${esc([l.type,l.location].filter(Boolean).join(' · '))}${l.contact ? '<br>'+esc(l.contact) : ''}</div></div>
         <span class="pill ${l.followUp?'fu':''}">${esc(l.followUp ? 'Follow-up' : (l.status || 'New'))}</span></div>
       ${l.notes ? `<div class="note">${esc(l.notes)}</div>` : ''}
       <label>Send to</label>
       <input data-f="email" data-k="${esc(k)}" type="email" inputmode="email" autocomplete="off" autocapitalize="off" spellcheck="false"
         placeholder="Add an email address" value="${esc(email)}" class="${email && !ok ? 'bad' : ''}">
       ${!email ? '<div class="hint">No public email found yet. Add one to send.</div>' : ''}
+      <label>Phone ${val(l,'phone') ? `<a class="call" href="tel:${esc(val(l,'phone').replace(/[^0-9+]/g,''))}">Call</a>` : ''}</label>
+      <input data-f="phone" data-k="${esc(k)}" type="tel" inputmode="tel" autocomplete="off" placeholder="Add a phone number" value="${esc(val(l,'phone'))}">
       <details><summary>Preview / edit email</summary>
         <label>Subject</label>
         <input data-f="subject" data-k="${esc(k)}" value="${esc(val(l,'subject') || ("Let's Wrassle apparel for " + l.lead))}">
@@ -139,6 +142,11 @@
   function wire(){
     document.querySelectorAll('[data-f]').forEach(el => {
       if (el._w) return; el._w = true;
+      if (el.dataset.f === 'phone') el.addEventListener('change', async () => {
+        const r = await call('apiUpdate', el.dataset.k, {phone: el.value.trim()}).catch(e => ({ok:false, message:e.message}));
+        toast(r.ok ? 'Phone saved' : ('Couldn\'t save phone: ' + r.message));
+        const l = data.review.find(x => key(x) === el.dataset.k); if (l && r.ok) l.phone = el.value.trim();
+      });
       el.addEventListener('input', () => {
         const k = el.dataset.k, f = el.dataset.f;
         edits[k] = Object.assign({}, edits[k], {[f]: el.value});
@@ -184,7 +192,7 @@
       armed.delete(k);
       const l = data.review.find(x => key(x) === k);
       busy.add(k); render(); banner('');
-      const r = await call('apiApprove', k, {email: val(l,'email').trim(), subject: val(l,'subject') || ("Let's Wrassle apparel for " + l.lead), body: val(l,'body')})
+      const r = await call('apiApprove', k, {email: val(l,'email').trim(), phone: val(l,'phone').trim(), subject: val(l,'subject') || ("Let's Wrassle apparel for " + l.lead), body: val(l,'body')})
         .catch(e => ({ok:false, message: e.message || String(e)}));
       busy.delete(k);
       if (r.ok){ toast('Sent to ' + val(l,'email').trim() + ' ✅'); delete edits[k]; }

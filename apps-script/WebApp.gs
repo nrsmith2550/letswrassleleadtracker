@@ -50,7 +50,7 @@ function apiApprove(lead, edits) {
     const r = findRowByLead_(sh, lead);
     if (!r) return { ok: false, message: 'That lead is no longer in the queue.' };
     edits = edits || {};
-    ['Email', 'Subject', 'Body'].forEach(k => {
+    ['Email', 'Phone', 'Subject', 'Body'].forEach(k => {
       const v = edits[k.toLowerCase()];
       if (typeof v === 'string') sh.getRange(r, C[k]).setValue(v);
     });
@@ -59,6 +59,25 @@ function apiApprove(lead, edits) {
     const still = findRowByLead_(sh, lead);
     if (still) return { ok: false, message: String(sh.getRange(still, C['Status']).getValue()).replace(/^⚠️\s*/, '') };
     return { ok: true, message: 'Sent' };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/** Save edits (email, phone, subject, body) without sending. */
+function apiUpdate(lead, fields) {
+  const lock = LockService.getDocumentLock();
+  if (!lock.tryLock(30000)) return { ok: false, message: 'Busy, try again in a moment.' };
+  try {
+    const sh = SpreadsheetApp.getActive().getSheetByName(TAB.LEADS);
+    const r = findRowByLead_(sh, lead);
+    if (!r) return { ok: false, message: 'Lead not found.' };
+    fields = fields || {};
+    ['Email', 'Phone', 'Subject', 'Body'].forEach(k => {
+      const v = fields[k.toLowerCase()];
+      if (typeof v === 'string') sh.getRange(r, C[k]).setValue(v);
+    });
+    return { ok: true };
   } finally {
     lock.releaseLock();
   }
