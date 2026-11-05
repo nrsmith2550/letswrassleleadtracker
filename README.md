@@ -22,6 +22,8 @@ The web app is served by the same Apps Script project, so it runs as you, sends 
   - **Edit:** you can change the email, subject or message before you send.
   - **Instagram:** leads with a handle have a **Copy DM** button.
   - **Sent and Denied tabs** show history. You can move a denied lead back to review.
+- **Menu:** tap ☰ at the top left to switch between **Leads** and the **Quote calculator**.
+- **Quote calculator:** use it to price bulk custom orders during a consultation. Enter the quantity, ink colors per location, plus sizes, artwork and rush. It shows the total, the price per shirt, the 50% deposit and an upsell prompt for the next price tier. **Copy quote** gives you text ready to paste into a message. Tap **Showing profit** to switch to the customer view, which hides your cost and profit. Pricing rules are at the top of the script in `Quote.html`. The page is also at `/exec?page=quote`.
 - **Updating:** after you change the code, use **Deploy → Manage deployments → Edit → Version: New version**. The URL stays the same.
 
 ```
@@ -47,7 +49,7 @@ Claude (weekly) ──CSV──▶ Drive folder "Let's Wrassle – Incoming Lead
 > **Which Google account?** Use the Gmail account that has `support@letswrassleapparel.com` set up as a "Send mail as" address (`athletemindsetnetwork@gmail.com`). The script sends as whoever installs it. The incoming-leads folder is already shared with that account.
 
 1. **Create the sheet.** Signed in as that account, go to [sheets.new](https://sheets.new) and name it **Let's Wrassle Leads**.
-2. **Add the script.** Go to **Extensions → Apps Script**. Delete what's in `Code.gs` and paste in [`apps-script/Code.gs`](apps-script/Code.gs). Add a script file named `WebApp` with [`WebApp.gs`](apps-script/WebApp.gs), and an HTML file named `Index` with [`Index.html`](apps-script/Index.html).
+2. **Add the script.** Go to **Extensions → Apps Script**. Delete what's in `Code.gs` and paste in [`apps-script/Code.gs`](apps-script/Code.gs). Add a script file named `WebApp` with [`WebApp.gs`](apps-script/WebApp.gs), and three HTML files: `Index` with [`Index.html`](apps-script/Index.html), `Quote` with [`Quote.html`](apps-script/Quote.html), and `Menu` with [`Menu.html`](apps-script/Menu.html).
    Then click the gear (**Project Settings**), check **Show "appsscript.json" manifest file in editor**, and replace that file with [`apps-script/appsscript.json`](apps-script/appsscript.json). Save.
 3. **Run setup.** Reload the sheet. A **Let's Wrassle** menu appears. Click **Let's Wrassle → Run setup (first time)** and approve the Google permissions it asks for. You'll see an "unverified app" screen because it's your own script: click **Advanced → Go to project**.
    Setup creates the tabs, adds the Approve/Deny dropdown, installs the hourly import and daily follow-up checks, and imports your first 10 leads.
@@ -81,8 +83,10 @@ clasp push
 | Path | Purpose |
 |---|---|
 | `apps-script/Code.gs` | The whole automation: setup, Approve/Deny, CSV import, follow-ups |
-| `apps-script/WebApp.gs` | The phone app's server side (list, approve, deny, restore) |
-| `apps-script/Index.html` | The phone app's interface |
+| `apps-script/WebApp.gs` | The phone app's server side (page routing, list, approve, deny, restore) |
+| `apps-script/Index.html` | The phone app's leads page |
+| `apps-script/Quote.html` | The bulk order quote calculator page |
+| `apps-script/Menu.html` | The hamburger menu shared by both pages |
 | `apps-script/appsscript.json` | Apps Script manifest (time zone, scopes) |
 | `starter-leads.csv` | The first 10 researched leads (already in the Drive incoming folder) |
 | `claude/weekly-task-prompt.md` | The prompt the Claude scheduled task runs each Monday |

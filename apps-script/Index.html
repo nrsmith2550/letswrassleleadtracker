@@ -48,13 +48,14 @@
 </head>
 <body>
 <header>
-  <div class="brand"><h1>Let's <span>Wrassle</span> Leads</h1><button class="refresh" id="refresh">↻ Refresh</button></div>
+  <div class="brand"><button class="hamb" id="menuBtn" aria-label="Menu"><i></i><i></i><i></i></button><h1 style="flex:1">Let's <span>Wrassle</span> Leads</h1><button class="refresh" id="refresh">↻ Refresh</button></div>
   <div class="tabs">
     <button class="tab" data-view="review" aria-pressed="true">Review <span id="n-review"></span></button>
     <button class="tab" data-view="sent" aria-pressed="false">Sent</button>
     <button class="tab" data-view="denied" aria-pressed="false">Denied</button>
   </div>
 </header>
+<?!= include('Menu', {appUrl: appUrl, page: page}) ?>
 <main>
   <div id="status"></div>
   <div id="list"><div class="empty">Loading leads…</div></div>

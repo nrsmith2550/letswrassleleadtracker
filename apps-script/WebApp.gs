@@ -8,11 +8,28 @@
  * hourly import, follow-ups and the sheet itself keep working exactly as before.
  */
 
-function doGet() {
-  return HtmlService.createHtmlOutputFromFile('Index')
-    .setTitle("Let's Wrassle Leads")
+/** Pages in the hamburger menu: ?page=quote opens the quote calculator, anything else the leads app. */
+const PAGES = {
+  leads: { file: 'Index', title: "Let's Wrassle Leads" },
+  quote: { file: 'Quote', title: "Let's Wrassle Quote" }
+};
+
+function doGet(e) {
+  const page = PAGES[e && e.parameter && e.parameter.page] ? e.parameter.page : 'leads';
+  const t = HtmlService.createTemplateFromFile(PAGES[page].file);
+  t.appUrl = ScriptApp.getService().getUrl();
+  t.page = page;
+  return t.evaluate()
+    .setTitle(PAGES[page].title)
     .addMetaTag('viewport', 'width=device-width, initial-scale=1, maximum-scale=1')
     .addMetaTag('apple-mobile-web-app-capable', 'yes');
+}
+
+/** Pulls a shared HTML file (like Menu.html) into a page: <?!= include('Menu', {appUrl, page}) ?> */
+function include(name, vars) {
+  const t = HtmlService.createTemplateFromFile(name);
+  Object.assign(t, vars || {});
+  return t.evaluate().getContent();
 }
 
 /** Everything the app shows: the review queue plus recent sent/denied. */

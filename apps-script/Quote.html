@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0f1b2d;--card:#17263d;--card2:#1d3050;--ink:#f3f5f8;--muted:#9fb0c8;--line:#2a3f60;--gold:#f2b632;--green:#2fb36d;--red:#e0524a;--blue:#4f8ff7}
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,sans-serif;-webkit-text-size-adjust:100%}
+  header{position:sticky;top:0;z-index:5;background:var(--bg);padding:14px 16px 12px;border-bottom:1px solid var(--line)}
+  .brand{display:flex;align-items:center;gap:10px}
+  h1{font-family:Oswald,Impact,sans-serif;font-weight:600;letter-spacing:.5px;font-size:23px;margin:0;text-transform:uppercase;flex:1}
+  h1 span{color:var(--gold)}
+  .mode{flex:none;display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);background:none;border:1px solid var(--line);border-radius:10px;padding:6px 9px;font-family:Inter,sans-serif}
+  .mode b{color:var(--ink);font-weight:600}
+  main{padding:14px 14px 60px;max-width:640px;margin:0 auto}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px}
+  h2{font-family:Oswald,Impact,sans-serif;font-weight:600;font-size:17px;letter-spacing:.4px;text-transform:uppercase;margin:0 0 10px}
+  label{display:block;font-size:12px;color:var(--muted);margin:12px 0 5px;font-weight:500}
+  input[type=number],select{width:100%;background:#0d1828;color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:11px 12px;font:16px Inter,sans-serif;-webkit-appearance:none;appearance:none}
+  input:focus,select:focus{outline:none;border-color:var(--blue)}
+  #qty{font-size:28px;font-weight:700;padding:8px 12px}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .chip{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:999px;padding:6px 12px;font:500 14px Inter,sans-serif}
+  .chip.on{border-color:var(--blue);background:var(--card2)}
+  .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+  .g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .g3 label,.g2 label{margin-top:12px}
+  .check{display:flex;align-items:center;gap:10px;margin-top:12px;font-size:14px;color:var(--ink)}
+  .check input{width:20px;height:20px;accent-color:var(--green);margin:0}
+  .hint{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.4}
+  .big{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:8px}
+  .lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+  .val{font-family:Oswald,Impact,sans-serif;font-weight:600;font-size:42px;line-height:1.05;color:var(--gold)}
+  .per{text-align:right;font-size:13px;color:var(--muted)}
+  .per b{display:block;color:var(--ink);font-size:20px}
+  table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+  .lines td{padding:6px 0;border-bottom:1px dashed var(--line);vertical-align:top}
+  .lines td:last-child{text-align:right;white-space:nowrap;padding-left:10px}
+  .lines tr.total td{border-bottom:none;border-top:1px solid var(--ink);font-weight:700;padding-top:9px}
+  .lines tr.dim td{color:var(--muted)}
+  .lines .sub{display:block;font-size:12px;color:var(--muted)}
+  .waived{color:#7ee2a8;font-weight:600}
+  .nudge{padding:11px 13px;border-radius:12px;background:#3a2a10;color:#ffd98a;font-size:14px;margin-top:12px;line-height:1.4}
+  .warn{padding:11px 13px;border-radius:12px;background:#3d1717;color:#ffb3ad;font-size:14px;margin-top:12px;line-height:1.4}
+  .profit{margin-top:12px;border-radius:12px;background:#123a26;padding:11px 13px}
+  .profit .lbl{color:#7ee2a8;margin-bottom:6px}
+  .pv{display:flex;justify-content:space-between;font-size:14px;padding:2px 0}
+  .terms{font-size:13px;color:var(--muted);margin:12px 0 0;padding-left:18px;line-height:1.5}
+  .row{display:flex;gap:8px;margin-top:14px}
+  button.act{flex:1;border:0;border-radius:12px;padding:14px 0;font:600 16px Inter,sans-serif;color:#fff;background:var(--green)}
+  button.sec{flex:none;padding:14px 16px;background:transparent;border:1px solid var(--line);color:var(--ink);border-radius:12px;font:500 15px Inter,sans-serif}
+  textarea{width:100%;min-height:200px;margin-top:10px;background:#0d1828;color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:11px 12px;font:14px/1.45 Inter,sans-serif;display:none}
+  .ref th{text-align:right;font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);font-weight:600;padding:6px 4px;border-bottom:1px solid var(--line)}
+  .ref td{text-align:right;padding:9px 4px;border-bottom:1px solid var(--line)}
+  .ref th:first-child,.ref td:first-child{text-align:left}
+  .ref tr.tier td{border-top:2px solid var(--card2)}
+  .ref tr[data-q]{cursor:pointer}
+  .ref tr[data-q]:active td{background:var(--card2)}
+  .ref td.p{color:#7ee2a8}
+  .ref .t{display:block;font-size:11px;color:var(--muted)}
+  body.customer .owner{display:none!important}
+  .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#e9eef6;color:#0f1b2d;padding:12px 16px;border-radius:12px;font-size:14px;font-weight:500;box-shadow:0 6px 24px rgba(0,0,0,.35);display:none;max-width:92vw;z-index:10}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <button class="hamb" id="menuBtn" aria-label="Menu"><i></i><i></i><i></i></button>
+    <h1>Bulk <span>Quote</span></h1>
+    <button class="mode" id="modeBtn"><span id="modeLbl">Showing <b>profit</b></span></button>
+  </div>
+</header>
+<?!= include('Menu', {appUrl: appUrl, page: page}) ?>
+
+<main>
+  <section class="card">
+    <h2>Order</h2>
+    <label for="qty" style="margin-top:0">Number of shirts</label>
+    <input type="number" id="qty" inputmode="numeric" min="1" value="36">
+    <div class="chips" id="chips"></div>
+
+    <div class="g3">
+      <div><label for="front">Front colors</label><select id="front"></select></div>
+      <div><label for="back">Back colors</label><select id="back"></select></div>
+      <div><label for="sleeve">Sleeve colors</label><select id="sleeve"></select></div>
+    </div>
+    <div class="hint">The price includes a 1-color front print. Each extra print location is +$3.00 a shirt, and each extra ink color is +$1.00 a shirt.</div>
+
+    <div class="g2">
+      <div><label for="xxl">2XL shirts (+$2)</label><input type="number" id="xxl" inputmode="numeric" min="0" value="0"></div>
+      <div><label for="xxxl">3XL+ shirts (+$3)</label><input type="number" id="xxxl" inputmode="numeric" min="0" value="0"></div>
+    </div>
+
+    <label class="check"><input type="checkbox" id="design"> We create the artwork ($50, waived on 48+)</label>
+    <label class="check"><input type="checkbox" id="rush"> Rush: under 7 business days (+15%)</label>
+
+    <div class="g2 owner">
+      <div><label for="cost">Your cost / shirt ($)</label><input type="number" id="cost" inputmode="decimal" min="0" step="0.25" value="9.00"></div>
+      <div><label for="plusCost">Extra cost / plus size ($)</label><input type="number" id="plusCost" inputmode="decimal" min="0" step="0.25" value="2.00"></div>
+    </div>
+    <div class="hint owner">Raise your cost when extra colors or locations cost you more at the printer.</div>
+  </section>
+
+  <section class="card">
+    <div class="big">
+      <div><div class="lbl">Order total</div><div class="val" id="total">$0</div></div>
+      <div class="per">per shirt<b id="per">$0.00</b></div>
+    </div>
+    <table class="lines" id="lines"></table>
+    <div id="msgs"></div>
+
+    <div class="profit owner">
+      <div class="lbl">Your numbers</div>
+      <div class="pv"><span>Your cost</span><b id="pCost">$0</b></div>
+      <div class="pv"><span>Your profit</span><b id="pProfit">$0</b></div>
+      <div class="pv"><span>Margin</span><b id="pMargin">0%</b></div>
+    </div>
+
+    <ul class="terms">
+      <li>50% deposit to start, balance due before shipping or pickup</li>
+      <li>Digital proof approval before printing · 10–14 business days</li>
+      <li>No returns on custom work, except printing defects (we reprint those)</li>
+    </ul>
+
+    <div class="row">
+      <button class="act" id="copyBtn">Copy quote</button>
+      <button class="sec" id="showBtn">Show text</button>
+    </div>
+    <textarea id="quoteText" readonly></textarea>
+  </section>
+
+  <section class="card">
+    <h2>Quick price chart</h2>
+    <div class="hint" style="margin:-4px 0 8px">1-color front, standard tees, setup included. Tap a row to load it.</div>
+    <table class="ref" id="ref"></table>
+  </section>
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  // Pricing rules. Keep in sync with the business plan's bulk order tiers.
+  const TIERS = [
+    {min:250, price:11.50, label:'250+'},
+    {min:100, price:13.00, label:'100–249'},
+    {min:48,  price:14.50, label:'48–99'},
+    {min:24,  price:16.00, label:'24–47'},
+    {min:12,  price:18.00, label:'12–23'}
+  ];
+  const MIN_QTY = 12, SETUP_PER_COLOR = 25, SETUP_WAIVE = 100, DESIGN_FEE = 50, DESIGN_WAIVE = 48,
+        EXTRA_COLOR = 1, EXTRA_LOC = 3, XXL_UP = 2, XXXL_UP = 3, RUSH = 0.15;
+  const CHIP_QTYS = [12, 24, 36, 48, 72, 100, 150, 250];
+  const REF_QTYS = [12, 18, 24, 36, 48, 72, 100, 150, 200, 250, 500];
+
+  const $ = id => document.getElementById(id);
+  const money = n => '$' + n.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+  const tierFor = q => TIERS.find(t => q >= t.min) || TIERS[TIERS.length - 1];
+  const nextTier = q => TIERS.slice().reverse().find(t => t.min > q);
+  const deposit = total => Math.ceil(total * 50) / 100;
+
+  function fill(sel, from, to, def){
+    for (let i = from; i <= to; i++){ const o = document.createElement('option'); o.value = i; o.textContent = i === 0 ? 'None' : i; sel.appendChild(o); }
+    sel.value = def;
+  }
+  fill($('front'), 1, 6, 1); fill($('back'), 0, 6, 0); fill($('sleeve'), 0, 6, 0);
+
+  CHIP_QTYS.forEach(n => {
+    const b = document.createElement('button'); b.className = 'chip'; b.textContent = n; b.dataset.q = n;
+    b.onclick = () => { $('qty').value = n; calc(); };
+    $('chips').appendChild(b);
+  });
+
+  function compute(o){
+    const q = Math.max(0, Math.floor(o.qty || 0));
+    const t = tierFor(q);
+    const locs = [o.front, o.back, o.sleeve].filter(c => c > 0);
+    const colors = locs.reduce((a, b) => a + b, 0);
+    const addon = Math.max(0, locs.length - 1) * EXTRA_LOC + Math.max(0, colors - locs.length) * EXTRA_COLOR;
+    const unit = t.price + addon;
+    const xxl = Math.min(o.xxl || 0, q), xxxl = Math.min(o.xxxl || 0, Math.max(0, q - xxl));
+    const shirts = unit * q, plus = xxl * XXL_UP + xxxl * XXXL_UP;
+    const setupFull = colors * SETUP_PER_COLOR, setup = q >= SETUP_WAIVE ? 0 : setupFull;
+    const design = o.design ? (q >= DESIGN_WAIVE ? 0 : DESIGN_FEE) : 0;
+    const sub = shirts + plus + setup + design;
+    const rush = o.rush ? Math.round(sub * RUSH * 100) / 100 : 0;
+    const total = sub + rush;
+    const cost = q * o.cost + (xxl + xxxl) * o.plusCost;
+    return {q, t, unit, addon, colors, xxl, xxxl, shirts, setup, setupFull, design, rush, total,
+            per: q ? total / q : 0, cost, profit: total - cost, margin: total ? (total - cost) / total : 0};
+  }
+
+  function read(){
+    return {qty: +$('qty').value, front: +$('front').value, back: +$('back').value, sleeve: +$('sleeve').value,
+            xxl: +$('xxl').value || 0, xxxl: +$('xxxl').value || 0, design: $('design').checked, rush: $('rush').checked,
+            cost: +$('cost').value || 0, plusCost: +$('plusCost').value || 0};
+  }
+
+  function calc(){
+    const o = read(), r = compute(o);
+    $('total').textContent = money(r.total);
+    $('per').textContent = money(r.per);
+    document.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', +c.dataset.q === r.q));
+
+    let h = `<tr><td>${r.q} shirts × ${money(r.unit)}<span class="sub">${r.t.label} tier ${money(r.t.price)}${r.addon ? ' + ' + money(r.addon) + ' add-ons' : ''}</span></td><td>${money(r.shirts)}</td></tr>`;
+    if (r.xxl) h += `<tr><td>2XL upcharge: ${r.xxl} × $2.00</td><td>${money(r.xxl * XXL_UP)}</td></tr>`;
+    if (r.xxxl) h += `<tr><td>3XL+ upcharge: ${r.xxxl} × $3.00</td><td>${money(r.xxxl * XXXL_UP)}</td></tr>`;
+    h += r.setup ? `<tr><td>Setup: ${r.colors} color${r.colors > 1 ? 's' : ''} × $25</td><td>${money(r.setup)}</td></tr>`
+                 : `<tr><td>Setup (${money(r.setupFull)} value)</td><td class="waived">Waived</td></tr>`;
+    if (o.design) h += r.design ? `<tr><td>Artwork</td><td>${money(r.design)}</td></tr>` : `<tr><td>Artwork ($50 value)</td><td class="waived">Waived</td></tr>`;
+    if (o.rush) h += `<tr><td>Rush (+15%)</td><td>${money(r.rush)}</td></tr>`;
+    h += `<tr class="total"><td>Total</td><td>${money(r.total)}</td></tr>`;
+    h += `<tr class="dim"><td>50% deposit to start</td><td>${money(deposit(r.total))}</td></tr>`;
+    $('lines').innerHTML = h;
+
+    let m = '';
+    if (r.q < MIN_QTY) m += `<div class="warn">Below the 12-shirt minimum. This is priced at the 12–23 rate, but the order needs at least 12 shirts.</div>`;
+    const nt = nextTier(r.q);
+    if (nt && r.q >= MIN_QTY){
+      const up = compute(Object.assign({}, o, {qty: nt.min})), diff = up.total - r.total;
+      m += `<div class="nudge"><b>Upsell:</b> at ${nt.min} shirts the price drops to ${money(up.per)} a shirt. That's ${nt.min - r.q} more shirts for ${diff >= 0 ? 'only ' + money(diff) + ' more' : money(-diff) + ' less'} (${money(up.total)} total).</div>`;
+    }
+    $('msgs').innerHTML = m;
+
+    $('pCost').textContent = money(r.cost);
+    $('pProfit').textContent = money(r.profit);
+    $('pProfit').style.color = r.profit < 0 ? 'var(--red)' : '';
+    $('pMargin').textContent = Math.round(r.margin * 100) + '%';
+
+    $('quoteText').value = quoteText(o, r);
+    renderRef(o);
+  }
+
+  function quoteText(o, r){
+    const loc = [];
+    [['front', o.front], ['back', o.back], ['sleeve', o.sleeve]].forEach(([n, c]) => { if (c) loc.push(`${n} (${c} color${c > 1 ? 's' : ''})`); });
+    let s = `LET'S WRASSLE APPAREL CO. — Custom Order Quote\n\n`;
+    s += `Quantity: ${r.q} shirts\nPrint: ${loc.join(', ')}\nPrice per shirt: ${money(r.unit)}\n`;
+    if (r.xxl || r.xxxl) s += `Plus sizes: ${r.xxl} × 2XL (+$2), ${r.xxxl} × 3XL+ (+$3)\n`;
+    s += `Setup: ${r.setup ? money(r.setup) : 'Waived'}\n`;
+    if (o.design) s += `Artwork: ${r.design ? money(r.design) : 'Waived'}\n`;
+    if (o.rush) s += `Rush (+15%): ${money(r.rush)}\n`;
+    s += `\nTOTAL: ${money(r.total)} (${money(r.per)} per shirt)\nDeposit to start (50%): ${money(deposit(r.total))}\n\n`;
+    s += `Balance due before shipping or pickup. A digital proof is approved before printing. Turnaround is 10–14 business days after proof approval${o.rush ? ' (rush: under 7)' : ''}.`;
+    return s;
+  }
+
+  function renderRef(o){
+    let h = `<tr><th>Shirts</th><th>Each</th><th>Total</th><th class="owner">Profit</th></tr>`, last = null;
+    REF_QTYS.forEach(q => {
+      const r = compute({qty:q, front:1, back:0, sleeve:0, xxl:0, xxxl:0, design:false, rush:false, cost:o.cost, plusCost:o.plusCost});
+      const cls = last && last !== r.t.label ? 'tier' : ''; last = r.t.label;
+      h += `<tr class="${cls}" data-q="${q}"><td><b>${q}</b><span class="t">${r.t.label}${r.setup ? ' · +$25 setup' : ' · setup waived'}</span></td>
+            <td>${money(r.per)}</td><td><b>${money(r.total)}</b></td><td class="owner p">${money(r.profit)}</td></tr>`;
+    });
+    $('ref').innerHTML = h;
+    $('ref').querySelectorAll('tr[data-q]').forEach(tr => tr.onclick = () => {
+      $('qty').value = tr.dataset.q; $('front').value = 1; $('back').value = 0; $('sleeve').value = 0; calc(); window.scrollTo(0, 0);
+    });
+  }
+
+  let tt;
+  function toast(msg){ const t = $('toast'); t.textContent = msg; t.style.display = 'block'; clearTimeout(tt); tt = setTimeout(() => t.style.display = 'none', 3000); }
+
+  document.querySelectorAll('input,select').forEach(el => el.addEventListener('input', calc));
+  $('modeBtn').onclick = () => {
+    const c = document.body.classList.toggle('customer');
+    $('modeLbl').innerHTML = c ? 'Customer <b>view</b>' : 'Showing <b>profit</b>';
+  };
+  $('showBtn').onclick = () => {
+    const t = $('quoteText'), on = t.style.display === 'block';
+    t.style.display = on ? 'none' : 'block'; $('showBtn').textContent = on ? 'Show text' : 'Hide text';
+  };
+  $('copyBtn').onclick = async () => {
+    try { await navigator.clipboard.writeText($('quoteText').value); toast('Quote copied. Paste it into a text or email.'); }
+    catch (e) { const t = $('quoteText'); t.style.display = 'block'; $('showBtn').textContent = 'Hide text'; t.focus(); t.select(); toast('Select the text below and copy it.'); }
+  };
+  calc();
+})();
+</script>
+</body>
+</html>
